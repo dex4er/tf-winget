@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "gitIgnoredAuthors: Biome Migrate commits the migrated biome.jsonc and the formatted files to Renovate branches as github-actions. Without this, Renovate would see the branch as modified by someone else and stop rebasing and updating it."
+  ],
+  "extends": ["config:recommended", ":semanticCommitsDisabled"],
+  "addLabels": ["renovate"],
+  "gitIgnoredAuthors": [
+    "41898282+github-actions[bot]@users.noreply.github.com"
+  ],
+  "lockFileMaintenance": {
+    "description": [
+      "mise.lock pins a checksum and a URL per tool per platform, but a local `mise install` re-locks only the platform it runs on and silently leaves the others stale.",
+      "Lock file maintenance runs plain `mise lock`, which refreshes every tool on every platform already in the file.",
+      "Defaults are disabled and weekly, hence the explicit settings. The packageRules keep it to mise.lock."
+    ],
+    "enabled": true,
+    "schedule": ["at any time"],
+    "automerge": true
+  },
+  "packageRules": [
+    {
+      "description": "No lock file maintenance by default.",
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "enabled": false
+    },
+    {
+      "description": "Lock file maintenance for mise.lock only.",
+      "matchManagers": ["mise"],
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "enabled": true
+    }
+  ],
+  "customManagers": [
+    {
+      "description": "Renovate hints in a comment after the version.",
+      "customType": "regex",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "managerFilePatterns": ["/\\.ya?ml$/"],
+      "matchStrings": [
+        "(\\s+|.*?@)(?<currentValue>\\S+?)!?\\s*#\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(\\s+versioning=(?<versioning>\\S+))?(\\s+registryUrl=(?<registryUrl>\\S+))?\\s*\\n"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.28.0.schema.json
+
+PackageIdentifier: dex4er.tf
+PackageVersion: 1.2.3
+InstallerType: portable
+Commands:
+- tf
+ReleaseDate: 2025-05-09
+Installers:
+- Architecture: x64
+  InstallerUrl: https://github.com/dex4er/tf/releases/download/v1.2.3/tf-windows-amd64.exe
+  InstallerSha256: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+- Architecture: arm64
+  InstallerUrl: https://github.com/dex4er/tf/releases/download/v1.2.3/tf-windows-arm64.exe
+  InstallerSha256: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+ManifestType: installer
+ManifestVersion: 1.28.0

@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: dex4er.tf
+PackageVersion: 1.2.3
+PackageLocale: en-US
+Publisher: Piotr Roszatycki
+PublisherUrl: https://github.com/dex4er
+PublisherSupportUrl: https://github.com/dex4er/tf/issues
+Author: Piotr Roszatycki
+PackageName: tf
+PackageUrl: https://github.com/dex4er/tf
+License: MIT
+LicenseUrl: https://github.com/dex4er/tf/blob/HEAD/LICENSE
+Copyright: Copyright (c) Piotr Roszatycki
+ShortDescription: Less verbose, more shell-friendly and LLM-friendly Terraform and OpenTofu
+Description: |-
+  The original Terraform and OpenTofu are abusively oververbosed. The tf wrapper runs either of them and makes it more CLI-friendly:
+  - removes unnecessary output
+  - adds own colored progress indicator
+  - provides an extra compact mode
+  - allows to use of multiple arguments when original command doesn't support it
+  - adds automatically quotes for indexed resources (xargs friendly)
+  - generates a log file when TF_OUTPUT_PATH environment variable is used
+  tf is optimized for LLM coding agents too: its output takes a fraction of the tokens of the output of Terraform or OpenTofu.
+Tags:
+- cli
+- devops
+- opentofu
+- terraform
+- tofu
+- wrapper
+ReleaseNotes: |-
+  ## Changes
+  - New release
+ReleaseNotesUrl: https://github.com/dex4er/tf/releases/tag/v1.2.3
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0

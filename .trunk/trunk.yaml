@@ -1,0 +1,127 @@
+# This file controls the behavior of Trunk: https://docs.trunk.io/cli
+# To learn more about the format of this file, see https://docs.trunk.io/reference/trunk-yaml
+version: 0.1
+cli:
+  version: 1.25.0
+# Trunk provides extensibility via plugins. (https://docs.trunk.io/plugins)
+plugins:
+  sources:
+    - id: trunk
+      ref: v1.10.2
+      uri: https://github.com/trunk-io/plugins
+# Many linters and tools depend on runtimes - configure them here. (https://docs.trunk.io/runtimes)
+runtimes:
+  enabled:
+    - go@1.21.0
+    - node@22.16.0
+    - python@3.14.4
+# actionlint comes from the maintained fork of kjanat, which continues the
+# releases of rhysd/actionlint after 1.7.12 with the same names of the files,
+# where the plugin downloads them from rhysd/actionlint.
+downloads:
+  - name: actionlint
+    downloads:
+      - os:
+          linux: linux
+          macos: darwin
+        cpu:
+          x86_64: amd64
+          arm_64: arm64
+        url: https://github.com/kjanat/actionlint/releases/download/v${version}/actionlint_${version}_${os}_${cpu}.tar.gz
+      - os: windows
+        cpu:
+          x86_64: amd64
+          arm_64: arm64
+        url: https://github.com/kjanat/actionlint/releases/download/v${version}/actionlint_${version}_windows_${cpu}.zip
+# This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
+lint:
+  definitions:
+    # shfmt ignores .editorconfig when it is given any formatting flag, and
+    # the plugin passes `-s`, so it would indent with tabs regardless of
+    # indent_style. Run it without flags; `simplify = true` in .editorconfig
+    # keeps the simplification.
+    - name: shfmt
+      commands:
+        - name: format
+          output: shfmt
+          run: shfmt -w ${target}
+          success_codes: [0, 1]
+          cache_results: true
+          formatter: true
+          batch: true
+          in_place: true
+    # Biome formats and lints JSON, Markdown and YAML, with biome.jsonc.
+    # parse_regex is matched against the whole output of a batch, so `^` needs
+    # `(?m)` to match at every line; without it Trunk reports only the first
+    # issue that Biome prints. Trunk runs Biome on a copy of the files in a
+    # sandbox outside the repository, with a copy of biome.jsonc of
+    # direct_configs. The sandbox has no .gitignore, which vcs.useIgnoreFile
+    # reads, so the commands turn it off, as Trunk applies .gitignore itself,
+    # and --no-errors-on-unmatched passes a file that biome.jsonc leaves out.
+    - name: biome
+      direct_configs:
+        - biome.jsonc
+      files:
+        - json
+        - markdown
+        - yaml
+      commands:
+        - output: regex
+          success_codes:
+            - 0
+            - 1
+          batch: true
+          cache_results: false
+          name: lint
+          parse_regex: (?m)^::(?P<severity>.*) title=(?P<code>[^,]+),file=(?P<path>[^,]+),line=(?P<line>[^,]+),endLine=[^,]+,col=(?P<col>[^,]+),endColumn=[^:]+::(?P<message>.*)
+          read_output_from: stdout
+          run: biome check --vcs-use-ignore-file=false --reporter=github --no-errors-on-unmatched ${target}
+          run_from: ${root_or_parent_with(biome.jsonc)}
+        - output: regex
+          success_codes:
+            - 0
+          batch: true
+          cache_results: false
+          formatter: true
+          name: fmt
+          parse_regex: (?m)^::(?P<severity>.*) title=(?P<code>[^,]+),file=(?P<path>[^,]+),line=(?P<line>[^,]+),endLine=[^,]+,col=(?P<col>[^,]+),endColumn=[^:]+::(?P<message>.*)
+          read_output_from: stdout
+          run: biome format --vcs-use-ignore-file=false --reporter=github --write --no-errors-on-unmatched ${target}
+          run_from: ${root_or_parent_with(biome.jsonc)}
+      run_timeout: 1m
+  enabled:
+    - actionlint@1.17.0
+    # Renovate bumps it, which the ! keeps from trunk upgrade, and Biome
+    # Migrate migrates biome.jsonc and formats the files for the new version
+    - biome@2.6.6! # datasource=npm depName=@biomejs/biome
+    - git-diff-check
+    - shellcheck@0.11.0
+    - shfmt@3.6.0
+    - trufflehog@3.95.6
+    # yamllint checks what Biome does not, as the quoted strings and the
+    # values that YAML 1.1 reads otherwise
+    - yamllint@1.38.0
+  disabled:
+    - checkov
+    # markdownlint: Biome formats Markdown and has its rules that are not about
+    # formatting
+    - markdownlint
+    - oxipng
+    - pinact
+    # prettier, yamlfmt: Biome formats JSON, Markdown and YAML; make.sh formats
+    # the generated manifests with yamlfmt of mise.toml
+    - prettier
+    - renovate
+    - yamlfmt
+  ignore:
+    # Rewritten by trunk upgrade
+    - linters:
+        - biome
+      paths:
+        - .trunk/trunk.yaml
+actions:
+  enabled:
+    - trunk-announce
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
+    - trunk-upgrade-available

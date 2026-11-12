@@ -1,0 +1,6 @@
+* text=auto
+
+*.sh text eol=lf
+
+# WinGet manifest templates require CRLF in the working tree
+template/dex4er* text eol=crlf
