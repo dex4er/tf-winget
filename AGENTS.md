@@ -64,9 +64,16 @@ already. `gh auth setup-git` makes `gh` the credential helper, so the token
 never lands in `.git/config`.
 
 `GH_TOKEN` of the environment `automated` is used for the sync, the push and
-the pull request, and by `trunk-upgrade.yaml`: a token of the account `dex4er`
-with write access to the contents of `dex4er/winget-pkgs` and of this
-repository, and to pull requests.
+the pull request: a token of the account `dex4er` with write access to the
+contents of `dex4er/winget-pkgs` and to pull requests. The workflow token
+cannot do it, as it reaches no repository but this one.
+
+`trunk-upgrade.yaml` needs no secret: it pushes `automated/trunk-upgrade` and
+opens its pull request with the workflow token, which the setting "Allow
+GitHub Actions to create and approve pull requests" of this repository
+permits. The token cannot change `.github/workflows`, which `trunk upgrade`
+does not touch, and its push starts no workflow, as `[skip ci]` of the commit
+would not either.
 
 ## Linters and Renovate
 
