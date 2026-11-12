@@ -14,6 +14,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -82,6 +83,17 @@ jobs:
               --title "Automated trunk upgrade $(cat .github/pr_title.log)" \
               --body-file .github/pr_body.log
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      # The push and the pull request of the workflow token start no workflow,
+      # so the checks of the branch are started with workflow_dispatch, as
+      # biome-migrate.yaml does for its commits.
+      - name: Run the checks of the pull request
+        if: env.changes == 'true'
+        run: |-
+          gh workflow run trunk-check.yaml --ref automated/trunk-upgrade
+          gh workflow run biome-migrate.yaml --ref automated/trunk-upgrade
         env:
           GH_TOKEN: ${{ github.token }}
 

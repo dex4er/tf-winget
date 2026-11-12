@@ -72,8 +72,10 @@ cannot do it, as it reaches no repository but this one.
 opens its pull request with the workflow token, which the setting "Allow
 GitHub Actions to create and approve pull requests" of this repository
 permits. The token cannot change `.github/workflows`, which `trunk upgrade`
-does not touch, and its push starts no workflow, as `[skip ci]` of the commit
-would not either.
+does not touch. Its push and its pull request start no workflow, and neither
+would a push of the commit, as its message has `[skip ci]`, so the workflow
+starts `trunk-check.yaml` and `biome-migrate.yaml` on the branch with
+`workflow_dispatch`.
 
 ## Linters and Renovate
 
