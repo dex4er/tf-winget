@@ -73,13 +73,13 @@ jobs:
           if [[ $(gh pr view automated/trunk-upgrade --json state --jq .state || true) != "OPEN" ]]; then
             gh pr create \
               --head automated/trunk-upgrade \
-              --title "Automated trunk upgrade $(cat .github/pr_title.log) [skip ci]" \
+              --title "Automated trunk upgrade $(cat .github/pr_title.log)" \
               --body-file .github/pr_body.log \
               --label automated \
               --label trunk
           else
             gh pr edit automated/trunk-upgrade \
-              --title "Automated trunk upgrade $(cat .github/pr_title.log) [skip ci]" \
+              --title "Automated trunk upgrade $(cat .github/pr_title.log)" \
               --body-file .github/pr_body.log
           fi
         env:
