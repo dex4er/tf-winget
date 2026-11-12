@@ -109,6 +109,35 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
+      # A new package is reviewed by a moderator of winget-pkgs, who learns
+      # from the description what tf is; a new version links its notes. The
+      # boxes of the checklist that the workflow does not verify stay empty.
+      - name: Write the description of the pull request
+        if: env.changes == 'true'
+        run: |-
+          locale="manifests/d/dex4er/tf/${version}/dex4er.tf.locale.en-US.yaml"
+          package_url=$(yq -r .PackageUrl "$locale")
+          short_description=$(yq -r .ShortDescription "$locale")
+          export VERSION="$version"
+          RELEASE_URL=$(yq -r .ReleaseNotesUrl "$locale")
+          export RELEASE_URL
+          MANIFEST_VERSION=$(yq -r .ManifestVersion "$locale")
+          export MANIFEST_VERSION
+          case "$pr_type" in
+            "New package")
+              DESCRIPTION="Adds the package \`dex4er.tf\` of [tf](${package_url}) version ${version}: ${short_description}. It installs the portable binary of the release for x64 or arm64 as the command \`tf\`."
+              ;;
+            "New version")
+              DESCRIPTION="Adds version ${version} of \`dex4er.tf\`, [tf](${package_url}). Its changes are in the [release notes](${RELEASE_URL})."
+              ;;
+            *)
+              DESCRIPTION="Updates the manifests of version ${version} of \`dex4er.tf\`, [tf](${package_url})."
+              ;;
+          esac
+          export DESCRIPTION
+          perl -pe 's/\$\{(\w+)\}/$ENV{$1} \/\/ die "No value of $1\n"/ge' template/pull-request.md > pr_body.md
+          cat pr_body.md
+
       - name: Create pull request
         if: env.changes == 'true'
         run: |-
@@ -123,7 +152,7 @@ jobs:
               --base master \
               --head "dex4er:dex4er-tf-${version}" \
               --title "${pr_type}: dex4er.tf version ${version}" \
-              --body "This PR updates the WinGet manifest for dex4er.tf version ${version}."
+              --body-file pr_body.md
           fi
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}

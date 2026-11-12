@@ -60,7 +60,11 @@ shallow and sparse, runs `make.sh`, force-pushes the branch
 `dex4er-tf-<version>` and opens the pull request to upstream unless one is
 open. The title starts with `New package`, `New version` or `Update`, as
 winget-pkgs expects, after whether the package and the version are there
-already. `gh auth setup-git` makes `gh` the credential helper, so the token
+already. The description is `template/pull-request.md`, the template of
+winget-pkgs, whose `${...}` the workflow replaces: a new package, which a
+moderator reviews, says what tf is, a new version links its release notes,
+and a box of the checklist is checked only when the workflow ensures it.
+`gh auth setup-git` makes `gh` the credential helper, so the token
 never lands in `.git/config`.
 
 `GH_TOKEN` of the environment `automated` is used for the sync, the push and
