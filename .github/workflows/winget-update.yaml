@@ -78,9 +78,12 @@ jobs:
           fi
 
       # make.sh writes to manifests/ of the working directory, which points
-      # into the checkout of the fork.
+      # into the checkout of the fork. Before the first version of the package,
+      # the sparse checkout has no manifests/ at all, and mkdir -p of make.sh
+      # fails on the dangling symlink.
       - name: Generate new manifests
         run: |
+          mkdir -p winget-pkgs/manifests
           ln -s winget-pkgs/manifests manifests
           bash -x make.sh
         env:
